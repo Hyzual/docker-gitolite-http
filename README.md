@@ -16,11 +16,11 @@ sudo docker exec gitolite-http htpasswd -cb /data/.htpasswd admin password
 
 # 3. To enable HTTP access to your repository, we first have to access it through SSH
 # Copy the private key from the container
-sudo docker cp gitolite-http /data/admin .
+sudo docker cp gitolite-http:/data/admin .
 
 # 4. Clone the admin repository, using the copied admin key
 # Assuming Docker is installed on localhost
-ssh-agent (ssh-add ./admin; git clone git@localhost:8022:gitolite-admin)
+ssh-agent bash -c 'ssh-add ./admin; git clone git@localhost:8022:gitolite-admin'
 
 # 5. Finally, we need to give the R permission to the user daemon (which is Apache).
 # Add a "R = daemon" line at the end of the "repo testing" block.
