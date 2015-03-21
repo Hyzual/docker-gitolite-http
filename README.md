@@ -1,6 +1,6 @@
 # docker-gitolite-http
 
-A Dockerfile for [Gitolite](http://gitolite.com/) with added HTTP protocol support. Host your git repositories with Gitolite, access them from anywhere with HTTP ! Uses Apache 2.2, on Debian.
+A Dockerfile for [Gitolite][gitolite] with added HTTP protocol support. Host your git repositories with Gitolite, access them from anywhere with HTTP ! Uses Apache 2.2, on Debian.
 
 ## Usage
 
@@ -41,7 +41,7 @@ git clone http://admin:password@localhost:80/git/testing
 ### To use existing Gitolite repositories :
 
 First, we'll create a data-only container and we'll fill it with our existing gitolite data and repositories.
-You can see those instructions at [gitolite-httpdata](https://registry.hub.docker.com/u/hyzual/gitolite-httpdata/)
+You can see those instructions at [gitolite-httpdata][gitolite-http-data].
 
 ```bash
 # Create a data-only container which will create the volumes needed
@@ -74,7 +74,7 @@ Now run gitolite-http with the volumes from our data-only container. Don't bind 
 sudo docker run -d --name gitolite-http --p 80:80 -p 8022:22 --volumes-from gitolite-httpdata hyzual/gitolite-http
 ```
 
-Finally, follow from step 2 the remaining [instructions above](#instructions) to configure the `.htpasswd` file and grant apache access to the repositories.
+Finally, follow from step 2 the remaining [instructions above][anchor-instructions] to configure the `.htpasswd` file and grant apache access to the repositories.
 
 ## Debug :
 
@@ -102,7 +102,7 @@ The container will create a symlink from `/data/repositories/` to the `/reposito
 `/repositories` will contain the git repositories managed by Gitolite. If you don't provide them using the volume,
  two repositories will be created (as with normal Gitolite installation) :
 
-- `/repositories/gitolite-admin.git/` : the Gitolite administration repository. Use it to add SSH access by providing public keys for people in the `keys/` repository. You can also create new repositories or add read or write access to people using their key's name. See the [Gitolite Documentation](http://gitolite.com/gitolite/gitolite.html#overview) for further information on how to administrate git repositories using Gitolite.
+- `/repositories/gitolite-admin.git/` : the Gitolite administration repository. Use it to add SSH access by providing public keys for people in the `keys/` repository. You can also create new repositories or add read or write access to people using their key's name. See the [Gitolite Documentation][gitolite-doc] for further information on how to administrate git repositories using Gitolite.
 - `/repositories/testing.git/` : a test repository. Use it to test access to Gitolite with HTTP or SSH by cloning it. It's normal if it is empty.
 
 ## Ports
@@ -117,4 +117,10 @@ Access Gitolite through HTTP using the standard HTTP port
 
 ## Credits
 
-Gitolite's installation steps are heavily borrowed from [aostanin's Gitolite](https://registry.hub.docker.com/u/aostanin/gitolite/), so thanks to him ! Check out his images !
+Gitolite's installation steps are heavily borrowed from [aostanin's Gitolite][aostanin-gitolite], so thanks to him ! Check out his images !
+
+[anchor-instructions]: #instructions
+[gitolite]: http://gitolite.com/
+[gitolite-doc]: http://gitolite.com/gitolite/gitolite.html#overview
+[gitolite-httpdata]: https://registry.hub.docker.com/u/hyzual/gitolite-httpdata/
+[aostanin-gitolite]: https://registry.hub.docker.com/u/aostanin/gitolite/
