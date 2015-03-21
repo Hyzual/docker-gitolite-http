@@ -4,7 +4,8 @@ A Dockerfile for [Gitolite](http://gitolite.com/) with added HTTP protocol suppo
 
 ## Usage
 
-For a first installation (if you don't already use Gitolite) :
+<a href="#instructions"></a>
+### First installation (if you don't already use Gitolite) :
 
 ```bash
 # 1. Run the container. Don't bind to the SSH port on the host.
@@ -32,24 +33,50 @@ git push
 
 # 6. Now, test that admin has access to the testing repository through HTTP
 # Assuming you redirect to port 80 on localhost
-git clone http://admin:password@localhost/git/testing
+git clone http://admin:password@localhost:80/git/testing
 
 # If you cloned the repository without error, it's a success !
 ```
 
-To use existing Gitolite repositories :
+### To use existing Gitolite repositories :
+
+First, we'll create a data-only container and we'll fill it with our existing gitolite data and repositories.
+You can see those instructions at [gitolite-httpdata](https://registry.hub.docker.com/u/hyzual/gitolite-httpdata/)
 
 ```bash
-# Run the container, using volumes to load your repositories. Don't bind to the SSH port on the host.
-# Assuming Gitolite was running as user git, we mount the /home/git dir as the /data volume
-# Please make sure the admin pub key is present in /data/admin.pub, otherwise the container will regenerate one.
-# We also mount /home/git/repositories as the /repositories volumes
-sudo docker run -d --name gitolite-http -p 80:80 -p 8022:22 -v /home/git:/data -v /home/git/repositories:/repositories hyzual/gitolite-http
-
-# Follow from step 2. above
+# Create a data-only container which will create the volumes needed
+sudo docker run -d --name gitolite-httpdata hyzual/gitolite-httpdata
 ```
 
-Debug :
+The container will stop immediately, which is normal.
+
+Run another container with bash as command, bind-mount your existing repositories and copy them to the volumes. You will also need to change the permissions in the volume since gitolite-http will run with the image's `git` user. Assuming you already ran gitolite with user `git` on the host :
+
+```bash
+# Bind-mount gitolite's data to /hostdata and the repositories to /hostrepo
+sudo docker run -it --rm --volumes-from gitolitedata -v /home/git:/hostdata -v /home/git/repositories:/hostrepo hyzual/gitolitedata bash
+
+# Copy from /hostdata to the /data volume, copy from /hostrepo to the /repositories volume and change permissions.
+cp -R /hostdata/* /data \
+	&& cp -R /hostdata/.gitolite /data \
+	&& cp -R /hostdata/.gitolite.rc /data \
+	&& chown git:git -R /data \
+	&& cp -R /hostrepo/* /repositories \
+	&& chown git:git -R /repositories
+
+# Check that the /data and /repositories have correct permissions, then exit from the container
+exit
+```
+
+Now run gitolite-http with the volumes from our data-only container. Don't bind the SSH port on the host.
+
+```bash
+sudo docker run -d --name gitolite-http --p 80:80 -p 8022:22 --volumes-from gitolite-httpdata hyzual/gitolite-http
+```
+
+Finally, follow from step 2 the remaining [instructions above](#instructions) to configure the `.htpasswd` file and grant apache access to the repositories.
+
+## Debug :
 
 ```bash
 # Apache Error log
@@ -62,7 +89,7 @@ docker exec gitolite-http /usr/sbin/apachectl -t
 
 ## Volumes
 
-### `/data/`
+### /data/
 
 `/data/admin.pub` should contain the admin's public key used to access gitolite through ssh. If you don't provide it using the volume, a new rsa key will be generated with that name (along with the private key at `data/admin`).
 
@@ -70,7 +97,7 @@ docker exec gitolite-http /usr/sbin/apachectl -t
 
 The container will create a symlink from `/data/repositories/` to the `/repositories/` volume when started and Gitolite will create a `/data/projects.list` file.
 
-### `/repositories/`
+### /repositories/
 
 `/repositories` will contain the git repositories managed by Gitolite. If you don't provide them using the volume,
  two repositories will be created (as with normal Gitolite installation) :
