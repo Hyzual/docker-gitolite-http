@@ -4,7 +4,6 @@ A Dockerfile for [Gitolite][gitolite] with added HTTP protocol support. Host you
 
 ## Usage
 
-<a href="#instructions"></a>
 ### First installation (if you don't already use Gitolite) :
 
 ```bash
@@ -41,7 +40,7 @@ git clone http://admin:password@localhost:80/git/testing
 ### To use existing Gitolite repositories :
 
 First, we'll create a data-only container and we'll fill it with our existing gitolite data and repositories.
-You can see those instructions at [gitolite-httpdata][gitolite-http-data].
+You can see those instructions at [gitolite-httpdata][gitolite-httpdata].
 
 ```bash
 # Create a data-only container which will create the volumes needed
@@ -74,7 +73,7 @@ Now run gitolite-http with the volumes from our data-only container. Don't bind 
 sudo docker run -d --name gitolite-http --p 80:80 -p 8022:22 --volumes-from gitolite-httpdata hyzual/gitolite-http
 ```
 
-Finally, follow from step 2 the remaining [instructions above][anchor-instructions] to configure the `.htpasswd` file and grant apache access to the repositories.
+Finally, follow the remaining instructions above (see First installation) from step 2 to configure the `.htpasswd` file and grant apache access to the repositories.
 
 ## Debug :
 
@@ -119,7 +118,6 @@ Access Gitolite through HTTP using the standard HTTP port
 
 Gitolite's installation steps are heavily borrowed from [aostanin's Gitolite][aostanin-gitolite], so thanks to him ! Check out his images !
 
-[anchor-instructions]: #instructions
 [gitolite]: http://gitolite.com/
 [gitolite-doc]: http://gitolite.com/gitolite/gitolite.html#overview
 [gitolite-httpdata]: https://registry.hub.docker.com/u/hyzual/gitolite-httpdata/
