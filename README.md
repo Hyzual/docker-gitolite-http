@@ -53,12 +53,10 @@ Run another container with bash as command, bind-mount your existing repositorie
 
 ```bash
 # Bind-mount gitolite's data to /hostdata and the repositories to /hostrepo
-sudo docker run -it --rm --volumes-from gitolitedata -v /home/git:/hostdata -v /home/git/repositories:/hostrepo hyzual/gitolitedata bash
+sudo docker run -it --rm --volumes-from gitolitedata -v /home/git:/hostdata -v /home/git/repositories:/hostrepo hyzual/gitolitedata sh
 
 # Copy from /hostdata to the /data volume, copy from /hostrepo to the /repositories volume and change permissions.
-cp -R /hostdata/* /data \
-	&& cp -R /hostdata/.gitolite /data \
-	&& cp -R /hostdata/.gitolite.rc /data \
+cp -R /hostdata/.[!.]* /data \
 	&& chown git:git -R /data \
 	&& cp -R /hostrepo/* /repositories \
 	&& chown git:git -R /repositories
